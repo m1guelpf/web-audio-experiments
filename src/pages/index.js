@@ -16,11 +16,8 @@ const notes = [
 	{ name: 'C', frequency: 523.25 },
 ]
 
-const canvasWidth = 1000
-const canvasHeight = 100
-
 const Index = () => {
-	if (typeof window === 'undefined') return <span>loading...</span>
+	if (typeof window === 'undefined') return null
 
 	const canvasRef = useRef(null)
 
@@ -37,32 +34,34 @@ const Index = () => {
 	useEffect(() => {
 		if (!canvasRef.current) return
 
+		console.log(canvasRef.current.offsetWidth, canvasRef.current.offsetHeight)
+
 		const canvasCtx = canvasRef.current.getContext('2d')
-		canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight)
+		canvasCtx.clearRect(0, 0, canvasRef.current.offsetWidth, canvasRef.current.offsetHeight)
 
 		const drawAnalyserFrame = () => {
 			requestAnimationFrame(drawAnalyserFrame)
 
 			analyser.getByteTimeDomainData(dataArray)
 			canvasCtx.fillStyle = 'rgb(255, 255, 255)'
-			canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight)
-			canvasCtx.lineWidth = 2
+			canvasCtx.fillRect(0, 0, canvasRef.current.offsetWidth, canvasRef.current.offsetHeight)
+			canvasCtx.lineWidth = 1.5
 			canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
 			canvasCtx.beginPath()
 
-			var sliceWidth = (canvasWidth * 1.0) / analyser.frequencyBinCount
+			var sliceWidth = (canvasRef.current.offsetWidth * 1.0) / analyser.frequencyBinCount
 			var x = 0
 
 			for (var i = 0; i < analyser.frequencyBinCount; i++) {
 				var v = dataArray[i] / 128.0
-				var y = (v * canvasHeight) / 2
+				var y = (v * canvasRef.current.offsetHeight) / 2
 
 				if (i === 0) canvasCtx.moveTo(x, y)
 				else canvasCtx.lineTo(x, y)
 
 				x += sliceWidth
 			}
-			canvasCtx.lineTo(canvasWidth, canvasHeight / 2)
+			canvasCtx.lineTo(canvasRef.current.offsetWidth, canvasRef.current.offsetHeight / 2)
 			canvasCtx.stroke()
 		}
 
@@ -178,21 +177,59 @@ const Index = () => {
 	}
 
 	return (
-		<div>
-			<button onClick={playWhiteNoise}>white noise</button>
-			<button onClick={playSnareDrum}>snare drum</button>
-			<button onClick={playKickDrum}>kick drum</button>
-			<button onClick={playHiHat}>hi-hat drum</button>
-			<div style={{ border: '1px dotted black', padding: '1rem' }}>
-				{notes.map(({ name, frequency }) => (
-					<button key={frequency} onClick={() => playNote(frequency)} style={{ marginRight: '10px' }}>
-						{name}
-					</button>
-				))}
+		<div className="p-4">
+			<div className="mb-4 space-y-2 sm:space-y-0.5">
+				<h1 className="text-3xl font-medium">Exploring the Web Audio API</h1>
+				<p>Making a simple synth with nothing but white noise and Web APIs to learn how sound works.</p>
+				<p>
+					The code for this experiment is <span className="line-through text-gray-700">a complete mess</span>{' '}
+					<a href="https://github.com/m1guelpf/web-audio-experiments/blob/main/src/pages/index.js" target="_blank" className="text-blue-600 hover:underline">
+						available on GitHub
+					</a>
+					!
+				</p>
+				<p>
+					You can also{' '}
+					<a href="https://twitter.com/m1guelpf" target="_blank" className="text-blue-600 hover:underline">
+						follow me on Twitter
+					</a>{' '}
+					to keep up with any other experiments I make.
+				</p>
 			</div>
-			<canvas ref={canvasRef} style={{ width: `${canvasWidth}px`, height: `${canvasHeight}px` }} />
+			<div className="mb-3">
+				<p className="font-medium text-xl mb-1">Drums</p>
+				<div className="flex items-center space-x-1.5">
+					<button className="border rounded-lg p-1 focus:outline-none focus:ring" onClick={playWhiteNoise}>
+						white noise
+					</button>
+					<button className="border rounded-lg p-1 focus:outline-none focus:ring" onClick={playSnareDrum}>
+						snare drum
+					</button>
+					<button className="border rounded-lg p-1 focus:outline-none focus:ring" onClick={playKickDrum}>
+						kick drum
+					</button>
+					<button className="border rounded-lg p-1 focus:outline-none focus:ring" onClick={playHiHat}>
+						hi-hat drum
+					</button>
+				</div>
+			</div>
+			<div className="mb-2">
+				<p className="font-medium text-xl mb-1">Notes</p>
+				<div className="flex flex-wrap gap-y-1.5 gap-x-1.5 items-center">
+					{notes.map(({ name, frequency }) => (
+						<button className="border rounded-lg p-1 focus:outline-none focus:ring" key={frequency} onClick={() => playNote(frequency)}>
+							{name}
+						</button>
+					))}
+				</div>
+			</div>
+			<canvas ref={canvasRef} className="w-full h-[100px]" />
 		</div>
 	)
+}
+
+export function getStaticProps() {
+	return { props: {} }
 }
 
 export default Index
