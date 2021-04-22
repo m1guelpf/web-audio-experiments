@@ -41,10 +41,10 @@ const Index = () => {
 		canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight)
 
 		const drawAnalyserFrame = () => {
-			requestAnimationFrame(draw)
+			requestAnimationFrame(drawAnalyserFrame)
 
 			analyser.getByteTimeDomainData(dataArray)
-			canvasCtx.fillStyle = 'rgb(200, 200, 200)'
+			canvasCtx.fillStyle = 'rgb(255, 255, 255)'
 			canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight)
 			canvasCtx.lineWidth = 2
 			canvasCtx.strokeStyle = 'rgb(0, 0, 0)'
